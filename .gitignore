@@ -1,0 +1,26 @@
+# Python caches
+__pycache__/
+*.py[cod]
+
+# Notebook/runtime caches
+.ipynb_checkpoints/
+.matplotlib/
+
+# Virtual environments accidentally created in the project root
+.venv/
+bin/
+lib/
+include/
+etc/
+share/
+pyvenv.cfg
+
+# Local/editor noise
+.DS_Store
+.claude/
+.vscode/
+
+# Training artifacts that can be regenerated
+*.pth
+
+# Keep generated PDFs by default because they are small chapter outputs.
