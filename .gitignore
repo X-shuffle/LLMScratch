@@ -22,5 +22,6 @@ pyvenv.cfg
 
 # Training artifacts that can be regenerated
 *.pth
+YouTube-LLM-Videos/
 
 # Keep generated PDFs by default because they are small chapter outputs.
