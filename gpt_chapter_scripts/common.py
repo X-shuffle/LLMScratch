@@ -293,13 +293,23 @@ def load_verdict_text(file_path="the-verdict.txt"):
 class GPTDatasetV1(Dataset):
     """Sliding-window dataset for next-token prediction."""
 
-    def __init__(self, txt, tokenizer, max_length, stride):
+    def __init__(self, txt, tokenizer, max_length, stride, debug_name=None):
         self.input_ids = []
         self.target_ids = []
         token_ids = tokenizer.encode(txt, allowed_special={"<|endoftext|>"})
+        window_starts = list(range(0, len(token_ids) - max_length, stride))
+
+        if debug_name is not None:
+            input_tokens = len(window_starts) * max_length
+            unused_input_tokens = len(token_ids) - input_tokens
+            print(f"[{debug_name}] total tokens: {len(token_ids)}")
+            print(f"[{debug_name}] max_length: {max_length}, stride: {stride}")
+            print(f"[{debug_name}] window starts: {window_starts}")
+            print(f"[{debug_name}] input tokens used: {input_tokens}")
+            print(f"[{debug_name}] tokens not counted as input: {unused_input_tokens}")
 
         # Inputs are chunks of length `max_length`; targets are shifted by one token.
-        for i in range(0, len(token_ids) - max_length, stride):
+        for i in window_starts:
             input_chunk = token_ids[i : i + max_length]
             target_chunk = token_ids[i + 1 : i + max_length + 1]
             self.input_ids.append(torch.tensor(input_chunk))
@@ -320,10 +330,11 @@ def create_dataloader_v1(
     shuffle=True,
     drop_last=True,
     num_workers=0,
+    debug_name=None,
 ):
     """Wrap GPTDatasetV1 in a PyTorch DataLoader."""
     tokenizer = get_tokenizer()
-    dataset = GPTDatasetV1(txt, tokenizer, max_length, stride)
+    dataset = GPTDatasetV1(txt, tokenizer, max_length, stride, debug_name=debug_name)
     return DataLoader(
         dataset,
         batch_size=batch_size,
@@ -348,6 +359,7 @@ def create_train_val_loaders(text_data, cfg=GPT_CONFIG_124M, train_ratio=0.90):
         drop_last=True,
         shuffle=True,
         num_workers=0,
+        debug_name="train",
     )
     val_loader = create_dataloader_v1(
         val_data,
@@ -357,6 +369,7 @@ def create_train_val_loaders(text_data, cfg=GPT_CONFIG_124M, train_ratio=0.90):
         drop_last=False,
         shuffle=False,
         num_workers=0,
+        debug_name="validation",
     )
     return train_loader, val_loader
 

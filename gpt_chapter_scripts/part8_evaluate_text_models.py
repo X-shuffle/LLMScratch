@@ -115,6 +115,7 @@ def main():
 
     # Evaluate the untrained model before any optimization has happened.
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("device use:", device)
     model.to(device)
     torch.manual_seed(123)
     with torch.no_grad():
